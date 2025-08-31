@@ -1,0 +1,342 @@
+[
+  {
+    "type": "connected",
+    "generation_id": "2fc87e39-19b5-4ece-b893-24c1c101e8b7"
+  },
+  {
+    "type": "status",
+    "status": "RUNNING",
+    "generation_id": "2fc87e39-19b5-4ece-b893-24c1c101e8b7"
+  },
+  {
+    "step": "architecture_planner",
+    "status": "started",
+    "data": {
+      "summary": "We have daily pricing data stored in our data lake. Pull this data in from our data lake every morning at 9am and generate a report on price changes for the day broken down by brand and retailer. Generate this report and match the styles of the document in \u2018Notion - Sales Report.\u201d Email this report to our sales team every morning and send me a slack message once you do."
+    }
+  },
+  {
+    "step": "architecture_planner",
+    "status": "done",
+    "data": {
+      "summary": [
+        "GetDatalakeDataNode",
+        "NotionGetQuestionsNode",
+        "LLMCallNode",
+        "SendEmailNode",
+        "SendSlackMessageNode"
+      ]
+    }
+  },
+  { "step": "database_setup", "status": "started", "data": {} },
+  { "step": "database_setup", "status": "done", "data": { "databases": [] } },
+  { "step": "node_selector", "status": "started", "data": {} },
+  {
+    "step": "node_selector",
+    "status": "done",
+    "data": {
+      "nodes": [
+        {
+          "nodeId": "DataSourceNode_51448",
+          "name": "Data Source",
+          "description": "Retrieves data from cloud storage",
+          "inputs": {
+            "s3_filepath": {
+              "description": "S3 filepath to get data from",
+              "type": "string"
+            }
+          },
+          "outputs": {
+            "file_contents": {
+              "description": "Contents of the file",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "nodeId": "DocumentFetchNode_37452",
+          "name": "Document Fetch",
+          "description": "Retrieves content from document source",
+          "inputs": {
+            "page_id": {
+              "description": "ID of the page to get",
+              "type": "string"
+            }
+          },
+          "outputs": {
+            "questions": {
+              "description": "Contents of the file",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "nodeId": "AIProcessingNode_90099",
+          "name": "AI Processing",
+          "description": "Processes data using AI models",
+          "inputs": {
+            "system_prompt": {
+              "description": "System prompt to use for the LLM",
+              "type": "string"
+            },
+            "prompt": {
+              "description": "Prompt to use for the LLM",
+              "type": "string"
+            },
+            "model": {
+              "description": "Model to use for the LLM",
+              "type": "string",
+              "enum": ["o3", "gpt-4o", "gpt-4o-mini"]
+            }
+          },
+          "outputs": {
+            "response": {
+              "description": "Response from the LLM",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "nodeId": "DocumentCreateNode_89437",
+          "name": "Document Creator",
+          "description": "Creates new document in database",
+          "inputs": {
+            "database_id": {
+              "description": "ID of the database to add the page to",
+              "type": "string"
+            }
+          },
+          "outputs": {
+            "page_url": {
+              "description": "URL of the added page",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "nodeId": "EmailNode_90099",
+          "name": "Email Sender",
+          "description": "Sends email notifications",
+          "inputs": {
+            "email_to": {
+              "description": "Email address to send the email to",
+              "type": "string"
+            },
+            "email_subject": {
+              "description": "Subject of the email",
+              "type": "string"
+            },
+            "email_body": {
+              "description": "Body of the email",
+              "type": "string"
+            }
+          },
+          "outputs": {
+            "message_id": {
+              "description": "ID of the message sent",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "nodeId": "MessageNode_29578",
+          "name": "Message Sender",
+          "description": "Sends messages to communication platform",
+          "inputs": {
+            "slack_channel": {
+              "description": "Slack channel to send the message to",
+              "type": "string"
+            },
+            "message": {
+              "description": "Message to send",
+              "type": "string"
+            }
+          },
+          "outputs": {
+            "status": {
+              "description": "Status of the message sent",
+              "type": "string",
+              "enum": ["success", "error"]
+            }
+          }
+        }
+      ]
+    }
+  },
+  { "step": "connection_builder", "status": "started", "data": {} },
+  {
+    "step": "connection_builder",
+    "status": "done",
+    "data": {
+      "connections": [
+        {
+          "source": "DataSourceNode_51448",
+          "target": "DocumentFetchNode_37452"
+        },
+        { "source": "DocumentFetchNode_37452", "target": "AIProcessingNode_90099" },
+        { "source": "AIProcessingNode_90099", "target": "DocumentCreateNode_89437" },
+        {
+          "source": "DocumentCreateNode_89437",
+          "target": "EmailNode_90099"
+        },
+        {
+          "source": "EmailNode_90099",
+          "target": "MessageNode_29578"
+        }
+      ]
+    }
+  },
+  {
+    "step": "node_configurator",
+    "status": "started",
+    "data": {
+      "nodeId": "DataSourceNode_51448",
+      "name": "GetS3DataNode",
+      "description": "GetS3DataNode",
+      "params": {},
+      "loop_text": null
+    }
+  },
+  {
+    "step": "node_configurator",
+    "status": "done",
+    "data": {
+      "nodeId": "DataSourceNode_51448",
+      "name": "Get Sales Data",
+      "description": "Pull daily sales data from S3",
+      "params": { "s3_filepath": "{{$sales_data_filepath}}" },
+      "loop_text": null
+    }
+  },
+  {
+    "step": "node_configurator",
+    "status": "started",
+    "data": {
+      "nodeId": "DocumentFetchNode_37452",
+      "name": "NotionGetPageNode",
+      "description": "NotionGetPageNode",
+      "params": {},
+      "loop_text": null
+    }
+  },
+  {
+    "step": "node_configurator",
+    "status": "done",
+    "data": {
+      "nodeId": "DocumentFetchNode_37452",
+      "name": "Get Notion Sales report questions",
+      "description": "Get the Sales report questions from Notion",
+      "params": {
+        "page_id": "Sales-Report-Template-24689238d7f68042aa29eadcd7adf6b4"
+      },
+      "loop_text": null
+    }
+  },
+  {
+    "step": "node_configurator",
+    "status": "started",
+    "data": {
+      "nodeId": "AIProcessingNode_90099",
+      "name": "LLMCallNode",
+      "description": "LLMCallNode",
+      "params": {},
+      "loop_text": null
+    }
+  },
+  {
+    "step": "node_configurator",
+    "status": "done",
+    "data": {
+      "nodeId": "AIProcessingNode_90099",
+      "name": "Generate Sales Report",
+      "description": "Answer a question for the report based on the sales data.",
+      "params": {
+        "system_prompt": "You are a helpful assistant that generates a sales report based on the sales data.",
+        "prompt": "Based on the provided sales data, answer the following question: {{$current_item.question}}\n\nDATA: {{$DataSourceNode_51448.file_contents}}",
+        "model": "o3"
+      },
+      "loop_text": "For each report question"
+    }
+  },
+  {
+    "step": "node_configurator",
+    "status": "started",
+    "data": {
+      "nodeId": "DocumentCreateNode_89437",
+      "name": "NotionAddPageNode",
+      "description": "NotionAddPageNode",
+      "params": {},
+      "loop_text": null
+    }
+  },
+  {
+    "step": "node_configurator",
+    "status": "done",
+    "data": {
+      "nodeId": "DocumentCreateNode_89437",
+      "name": "Add Sales Report to Notion Page",
+      "description": "Create a new page on Notion for the sales report",
+      "params": {
+        "database_id": "356cb8c5b5ce4b43aebcbe408e0e125f",
+        "content": "{{$AIProcessingNode_90099.response}}"
+      }
+    }
+  },
+  {
+    "step": "node_configurator",
+    "status": "started",
+    "data": {
+      "nodeId": "EmailNode_90099",
+      "name": "SendEmailNode",
+      "description": "SendEmailNode",
+      "params": {},
+      "loop_text": null
+    }
+  },
+  {
+    "step": "node_configurator",
+    "status": "done",
+    "data": {
+      "nodeId": "EmailNode_90099",
+      "name": "Send Sales Report",
+      "description": "Send the Sales report to the sales team in an email.",
+      "params": {
+        "email_to": "{{$sales_team_emails_list}}",
+        "email_subject": "{{$date}} - Sales report",
+        "email_body": "{{$AIProcessingNode_90099.response}}"
+      },
+      "loop_text": null
+    }
+  },
+  {
+    "step": "node_configurator",
+    "status": "started",
+    "data": {
+      "nodeId": "MessageNode_29578",
+      "name": "SendSlackMessageNode",
+      "description": "SendSlackMessageNode",
+      "params": {},
+      "loop_text": null
+    }
+  },
+  {
+    "step": "node_configurator",
+    "status": "done",
+    "data": {
+      "nodeId": "MessageNode_29578",
+      "name": "Send Sales Report link in Slack",
+      "description": "Send the Sales report to you in a Slack message",
+      "params": {
+        "slack_channel": "{{$my_slack_DM}}",
+        "message": "Here's the link to today's sales report: {{$DocumentCreateNode_89437.page_url}}"
+      },
+      "loop_text": null
+    }
+  },
+  { "step": "workflow_saver", "status": "started", "data": {} },
+  { "step": "workflow_saver", "status": "done", "data": {} },
+  { "type": "complete", "final_status": "COMPLETED" }
+]

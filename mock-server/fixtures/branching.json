@@ -1,0 +1,266 @@
+[{"type": "connected", "generation_id": "33595073-2bb4-434b-87ff-6fca5b6d47e6"},
+{"type": "status", "status": "RUNNING", "generation_id": "33595073-2bb4-434b-87ff-6fca5b6d47e6"},
+{"step": "architecture_planner", "status": "started", "data": {"summary": "Create a comprehensive social media monitoring system that tracks mentions of your brand across platforms (Twitter, LinkedIn, Reddit, news sites), analyzes sentiment and engagement metrics, identifies influencers and key conversations, categorizes mentions by topic and urgency, and generates weekly reports with insights and recommended actions for the marketing team."}},
+{"step": "architecture_planner", "status": "done", "data": {"summary": ["WebSearchNode", "InstagramScraperNode", "TikTokScraperNode", "LLMCallNode", "GoogleSheetsUploadNode", "LLMCallNode", "SendEmailNode"]}},
+{"step": "database_setup", "status": "started", "data": {}},
+{"step": "database_setup", "status": "done", "data": {"databases": []}},
+{"step": "node_selector", "status": "started", "data": {}},
+{"step": "node_selector", "status": "done", "data": {"nodes": [
+  {
+    "nodeId": "WebSearchNode_1", 
+    "name": "Web Search Monitor", 
+    "description": "Tracks brand mentions across web platforms",
+    "inputs": {
+      "query": {
+        "description": "Search query to monitor",
+        "type": "string"
+      },
+      "sites": {
+        "description": "List of sites to search",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "date_range": {
+        "description": "Time range for search results",
+        "type": "string"
+      }
+    },
+    "outputs": {
+      "mentions": {
+        "description": "List of found brand mentions",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "url": {"type": "string"},
+            "content": {"type": "string"},
+            "platform": {"type": "string"},
+            "timestamp": {"type": "string"}
+          }
+        }
+      }
+    }
+  }, 
+  {
+    "nodeId": "InstagramScraperNode_1", 
+    "name": "Instagram Monitor", 
+    "description": "Scrapes Instagram for brand mentions",
+    "inputs": {
+      "hashtags": {
+        "description": "Hashtags to monitor",
+        "type": "string"
+      },
+      "keywords": {
+        "description": "Keywords to search for",
+        "type": "string"
+      },
+      "account_types": {
+        "description": "Types of accounts to monitor",
+        "type": "string",
+        "enum": ["all", "verified", "business"]
+      }
+    },
+    "outputs": {
+      "posts": {
+        "description": "Instagram posts mentioning the brand",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "post_id": {"type": "string"},
+            "content": {"type": "string"},
+            "author": {"type": "string"},
+            "likes": {"type": "number"},
+            "comments": {"type": "number"}
+          }
+        }
+      }
+    }
+  }, 
+  {
+    "nodeId": "TikTokScraperNode_1", 
+    "name": "TikTok Monitor", 
+    "description": "Scrapes TikTok videos for brand mentions",
+    "inputs": {
+      "hashtags": {
+        "description": "TikTok hashtags to monitor",
+        "type": "string"
+      },
+      "keywords": {
+        "description": "Keywords to search in videos",
+        "type": "string"
+      },
+      "video_types": {
+        "description": "Types of videos to analyze",
+        "type": "string",
+        "enum": ["all", "trending", "recent"]
+      }
+    },
+    "outputs": {
+      "videos": {
+        "description": "TikTok videos mentioning the brand",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "video_id": {"type": "string"},
+            "content": {"type": "string"},
+            "creator": {"type": "string"},
+            "views": {"type": "number"},
+            "engagement_rate": {"type": "number"}
+          }
+        }
+      }
+    }
+  }, 
+  {
+    "nodeId": "LLMCallNode_1", 
+    "name": "Sentiment Analyzer", 
+    "description": "Analyzes mentions for sentiment, influencers, and topics",
+    "inputs": {
+      "system_prompt": {
+        "description": "System prompt for the AI analysis",
+        "type": "string"
+      },
+      "prompt": {
+        "description": "Analysis prompt template",
+        "type": "string"
+      },
+      "model": {
+        "description": "AI model to use for analysis",
+        "type": "string",
+        "enum": ["o3", "gpt-4o", "gpt-4o-mini"]
+      }
+    },
+    "outputs": {
+      "analysis": {
+        "description": "Structured analysis of the mention",
+        "type": "object",
+        "properties": {
+          "sentiment": {"type": "string", "enum": ["positive", "negative", "neutral"]},
+          "influence_score": {"type": "number"},
+          "topic_category": {"type": "string"},
+          "urgency_level": {"type": "string", "enum": ["low", "medium", "high"]}
+        }
+      }
+    }
+  }, 
+  {
+    "nodeId": "GoogleSheetsUploadNode_1", 
+    "name": "Data Logger", 
+    "description": "Logs analyzed mentions in Google Sheets",
+    "inputs": {
+      "sheet_name": {
+        "description": "Name of the Google Sheet",
+        "type": "string"
+      },
+      "data": {
+        "description": "Data to upload to the sheet",
+        "type": "object"
+      },
+      "worksheet_id": {
+        "description": "ID of the worksheet to update",
+        "type": "string"
+      }
+    },
+    "outputs": {
+      "sheet_url": {
+        "description": "URL of the updated Google Sheet",
+        "type": "string"
+      },
+      "rows_added": {
+        "description": "Number of rows added to the sheet",
+        "type": "number"
+      }
+    }
+  }, 
+  {
+    "nodeId": "LLMCallNode_2", 
+    "name": "Report Generator", 
+    "description": "Generates comprehensive weekly reports",
+    "inputs": {
+      "system_prompt": {
+        "description": "System prompt for report generation",
+        "type": "string"
+      },
+      "prompt": {
+        "description": "Report generation prompt",
+        "type": "string"
+      },
+      "model": {
+        "description": "AI model for report generation",
+        "type": "string",
+        "enum": ["o3", "gpt-4o", "gpt-4o-mini"]
+      }
+    },
+    "outputs": {
+      "report": {
+        "description": "Generated weekly report",
+        "type": "object",
+        "properties": {
+          "summary": {"type": "string"},
+          "key_insights": {"type": "array", "items": {"type": "string"}},
+          "recommendations": {"type": "array", "items": {"type": "string"}},
+          "metrics": {"type": "object"}
+        }
+      }
+    }
+  }, 
+  {
+    "nodeId": "SendEmailNode_1", 
+    "name": "Report Distributor", 
+    "description": "Sends weekly reports to marketing team",
+    "inputs": {
+      "email_to": {
+        "description": "Email addresses to send report to",
+        "type": "string"
+      },
+      "email_subject": {
+        "description": "Subject line for the email",
+        "type": "string"
+      },
+      "email_body": {
+        "description": "Email body content",
+        "type": "string"
+      },
+      "attachments": {
+        "description": "Optional file attachments",
+        "type": "array",
+        "items": {"type": "string"}
+      }
+    },
+    "outputs": {
+      "message_id": {
+        "description": "ID of the sent email",
+        "type": "string"
+      },
+      "delivery_status": {
+        "description": "Email delivery status",
+        "type": "string",
+        "enum": ["sent", "delivered", "failed"]
+      }
+    }
+  }
+]}},
+{"step": "connection_builder", "status": "started", "data": {}},
+{"step": "connection_builder", "status": "done", "data": {"connections": [{"source": "WebSearchNode_1", "target": "LLMCallNode_1"}, {"source": "InstagramScraperNode_1", "target": "LLMCallNode_1"}, {"source": "TikTokScraperNode_1", "target": "LLMCallNode_1"}, {"source": "LLMCallNode_1", "target": "GoogleSheetsUploadNode_1"}, {"source": "GoogleSheetsUploadNode_1", "target": "LLMCallNode_2"}, {"source": "LLMCallNode_2", "target": "SendEmailNode_1"}]}},
+{"step": "node_configurator", "status": "started", "data": {"nodeId": "WebSearchNode_1", "name": "WebSearchNode", "description": "WebSearchNode", "params": {}, "loop_text": null}},
+{"step": "node_configurator", "status": "done", "data": {"nodeId": "WebSearchNode_1", "name": "Track Brand Mentions", "description": "Tracks mentions of 'Mica' across social media and news.", "params": {"query": "Mica", "sites": "twitter.com,linkedin.com,reddit.com,news.google.com"}, "loop_text": null}},
+{"step": "node_configurator", "status": "started", "data": {"nodeId": "InstagramScraperNode_1", "name": "InstagramScraperNode", "description": "InstagramScraperNode", "params": {}, "loop_text": null}},
+{"step": "node_configurator", "status": "done", "data": {"nodeId": "InstagramScraperNode_1", "name": "Track Instagram Mentions", "description": "Scrapes Instagram posts and stories for brand mentions", "params": {"hashtags": "#Mica", "keywords": "Mica", "account_types": "all"}, "loop_text": null}},
+{"step": "node_configurator", "status": "started", "data": {"nodeId": "TikTokScraperNode_1", "name": "TikTokScraperNode", "description": "TikTokScraperNode", "params": {}, "loop_text": null}},
+{"step": "node_configurator", "status": "done", "data": {"nodeId": "TikTokScraperNode_1", "name": "Track TikTok Mentions", "description": "Scrapes TikTok videos for brand mentions", "params": {"hashtags": "#Mica", "keywords": "Mica", "video_types": "all"}, "loop_text": null}},
+{"step": "node_configurator", "status": "started", "data": {"nodeId": "LLMCallNode_1", "name": "LLMCallNode", "description": "LLMCallNode", "params": {}, "loop_text": null}},
+{"step": "node_configurator", "status": "done", "data": {"nodeId": "LLMCallNode_1", "name": "Analyze Mentions", "description": "Analyzes mentions for sentiment, influencers, and topics", "params": {"system_prompt": "You are an expert social media analyst specializing in brand monitoring and sentiment analysis.", "prompt": "Analyze this social media mention: {{$current_item.content}}. Extract sentiment, influence score, topic category, and urgency level.", "model": "o3"}, "loop_text": "For each mention from all platforms"}},
+{"step": "node_configurator", "status": "started", "data": {"nodeId": "GoogleSheetsUploadNode_1", "name": "GoogleSheetsUploadNode", "description": "GoogleSheetsUploadNode", "params": {}, "loop_text": null}},
+{"step": "node_configurator", "status": "done", "data": {"nodeId": "GoogleSheetsUploadNode_1", "name": "Log Mentions", "description": "Logs mentions in a Google Sheet", "params": {"sheet_name": "Brand Mentions - {{$date}}", "data": "{{$LLMCallNode_1.analysis}}"}, "loop_text": null}},
+{"step": "node_configurator", "status": "started", "data": {"nodeId": "LLMCallNode_2", "name": "LLMCallNode", "description": "LLMCallNode", "params": {}, "loop_text": null}},
+{"step": "node_configurator", "status": "done", "data": {"nodeId": "LLMCallNode_2", "name": "Generate Weekly Report", "description": "Generates a weekly summary of brand mentions.", "params": {"system_prompt": "You are a marketing intelligence analyst who creates comprehensive reports for executive teams.", "prompt": "Summarize the brand mentions from the last week based on the data in this sheet: {{$GoogleSheetsUploadNode_1.sheet_url}}. Include key insights, trends, and actionable recommendations.", "model": "o3"}, "loop_text": null}},
+{"step": "node_configurator", "status": "started", "data": {"nodeId": "SendEmailNode_1", "name": "SendEmailNode", "description": "SendEmailNode", "params": {}, "loop_text": null}},
+{"step": "node_configurator", "status": "done", "data": {"nodeId": "SendEmailNode_1", "name": "Send Weekly Report", "description": "Sends the weekly report via email", "params": {"email_to": "{{$marketing_team_emails}}", "email_subject": "Weekly Brand Monitoring Report - {{$date}}", "email_body": "{{$LLMCallNode_2.response.report}}"}, "loop_text": null}},
+{"step": "workflow_saver", "status": "started", "data": {}},
+{"step": "workflow_saver", "status": "done", "data": {}},
+{"type": "complete", "final_status": "COMPLETED"}
+]
